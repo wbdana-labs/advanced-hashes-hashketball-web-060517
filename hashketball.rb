@@ -192,12 +192,71 @@ def most_points_scored
   game_hash.each do |loc, team_data|
     team_data[:players].each do |player, stats|
       points_scored << stats[:points]
+    end
+  end
+  game_hash.each do |loc, team_data|
+    team_data[:players].each do |player, stats|
       if stats[:points] == points_scored.max
         return player
       end
     end
   end
-  binding.pry
 end
 
-most_points_scored
+def winning_team
+  home_points_scored = []
+  away_points_scored = []
+  game_hash.each do |loc, team_data|
+    if loc == :home
+      team_data[:players].each do |player, stats|
+        home_points_scored << stats[:points]
+      end
+    elsif loc == :away
+      team_data[:players].each do |player, stats|
+        away_points_scored << stats[:points]
+      end
+    end
+  end
+  home_total = home_points_scored.inject{|sum, n| sum + n}
+  away_total = away_points_scored.inject{|sum, n| sum + n}
+  if home_total > away_total
+    return game_hash[:home][:team_name]
+  elsif away_total > home_total
+    return game_hash[:home][:team_name]
+  end
+end
+
+def player_with_longest_name
+  length_arr = []
+  home_team = game_hash[:home][:players].keys
+  away_team = game_hash[:away][:players].keys
+  home_team.each{|p| length_arr << p.length}
+  away_team.each{|p| length_arr << p.length}
+  game_hash.each do |loc, team_data|
+    team_data[:players].each do |name, stats|
+      if length_arr.max == name.length
+        return name
+      end
+    end
+  end
+end
+
+def most_steals
+  steal_arr = []
+  game_hash.each do |loc, team_data|
+    team_data[:players].each do |player, stats|
+      steal_arr << stats[:steals]
+    end
+  end
+  game_hash.each do |loc, team_data|
+    team_data[:players].each do |player, stats|
+      if stats[:steals] == steal_arr.max
+        return player
+      end
+    end
+  end
+end
+
+def long_name_steals_a_ton?
+  most_steals == player_with_longest_name
+end
